@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         WebMvcAutoConfiguration.class,
         SecurityAutoConfiguration.class,
         SecurityFilterAutoConfiguration.class})
-class DatabaseEntitiesIntegrationTest {
+class DatabaseEntitiesTest {
 
     @Autowired
     private EntityManager entityManager;
