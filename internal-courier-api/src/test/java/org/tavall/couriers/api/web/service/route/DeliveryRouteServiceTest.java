@@ -28,7 +28,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class DeliveryRouteServiceIntegrationTest {
+class DeliveryRouteServiceTest {
 
     @Test
     void createRouteFromLabelsTest() {
