@@ -24,6 +24,7 @@ public class SuperuserDashboardControllerHelper {
             Role.MERCHANT,
             Role.DRIVER,
             Role.SUPPORT,
+            Role.CLIENT,
             Role.USER,
             Role.CUSTOMER,
             Role.SYSTEM

@@ -22,13 +22,13 @@ public class SuperuserDashboardController {
 
     @GetMapping(Routes.SUPERUSER_DASHBOARD)
     public String dashboard(Model model) {
-        return helper.dashboard(model);
+        return "redirect:" + Routes.adminDashboard();
     }
 
     @PostMapping(Routes.SUPERUSER_DASHBOARD)
     public String addUser(@RequestParam("username") String username,
                           @RequestParam("role") String role,
                           RedirectAttributes redirectAttributes) {
-        return helper.addUser(username, role, redirectAttributes);
+        return "redirect:" + Routes.adminDashboard();
     }
 }

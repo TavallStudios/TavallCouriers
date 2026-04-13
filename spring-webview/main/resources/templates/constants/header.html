@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <header th:class="${@headerCss.navbar()}" th:fragment="header(userName, userRole)">
@@ -32,11 +32,18 @@
                 <a th:class="${@headerCss.userTrayLink()}" th:href="@{/}">Home</a>
                 <a th:class="${@headerCss.userTrayLink()}" th:href="@{/tracking}">Tracking</a>
                 <a th:class="${@headerCss.userTrayLink()}"
-                   th:if="${userRole == 'DRIVER' or userRole == 'MERCHANT' or userRole == 'SUPERUSER' or userRole == 'SUPPORT'}"
+                   th:if="${userRole == 'CLIENT' or userRole == 'DRIVER' or userRole == 'MERCHANT' or userRole == 'SUPERUSER' or userRole == 'SUPPORT'}"
                    th:href="@{/dashboard}">Dashboard</a>
                 <a th:class="${@headerCss.userTrayLink()}"
                    th:if="${userRole == null || userRole == 'GUEST'}"
                    th:href="@{/dashboard/login}">Dashboard Login</a>
+            </div>
+
+            <div th:class="${@headerCss.userTrayLinks()}" th:if="${userRole == 'CLIENT'}">
+                <div th:class="${@headerCss.userTraySectionTitle()}">Client Tools</div>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/client}">Client Dashboard</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/client}">Contracts</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/client}">Pickup Requests</a>
             </div>
 
             <div th:class="${@headerCss.userTrayLinks()}" th:if="${userRole == 'DRIVER'}">
@@ -46,19 +53,13 @@
                 <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/driver/create-label}">New Label</a>
             </div>
 
-            <div th:class="${@headerCss.userTrayLinks()}" th:if="${userRole == 'MERCHANT'}">
-                <div th:class="${@headerCss.userTraySectionTitle()}">Merchant Tools</div>
-                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/merchant}">Merchant Hub</a>
+            <div th:class="${@headerCss.userTrayLinks()}" th:if="${userRole == 'MERCHANT' or userRole == 'SUPERUSER' or userRole == 'SUPPORT'}">
+                <div th:class="${@headerCss.userTraySectionTitle()}">Admin Tools</div>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/admin}">Admin Operations</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/admin/users}">Manage Users</a>
                 <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/merchant/scan}">Scan Intake</a>
                 <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/merchant/shipments}">Shipments</a>
                 <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/merchant/routes}">Routes</a>
-            </div>
-
-            <div th:class="${@headerCss.userTrayLinks()}" th:if="${userRole == 'SUPERUSER' or userRole == 'SUPPORT'}">
-                <div th:class="${@headerCss.userTraySectionTitle()}">Admin Tools</div>
-                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/superuser}">Admin Console</a>
-                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/admin/users}">Manage Users</a>
-                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/merchant/shipments}">Shipments</a>
             </div>
 
             <div th:class="${@headerCss.userTrayActions()}">
@@ -69,8 +70,6 @@
                 <form th:if="${userRole != null && userRole != 'GUEST'}"
                       th:action="@{/dashboard/logout}"
                       method="post">
-                    <input type="hidden" th:if="${_csrf != null}"
-                           th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button th:class="${@buttonsCss.btnPrimary()}" type="submit">Log out</button>
                 </form>
             </div>
@@ -89,17 +88,13 @@
             const closeMenu = () => {
                 body.classList.remove("sidebar-open");
                 menu.setAttribute("aria-hidden", "true");
-                if (toggle) {
-                    toggle.setAttribute("aria-expanded", "false");
-                }
+                toggle.setAttribute("aria-expanded", "false");
             };
 
             const openMenu = () => {
                 body.classList.add("sidebar-open");
                 menu.setAttribute("aria-hidden", "false");
-                if (toggle) {
-                    toggle.setAttribute("aria-expanded", "true");
-                }
+                toggle.setAttribute("aria-expanded", "true");
             };
 
             toggle.addEventListener("click", (event) => {
@@ -136,4 +131,3 @@
 </header>
 </body>
 </html>
-

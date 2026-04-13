@@ -28,6 +28,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
 
         </dependency>
@@ -145,6 +150,7 @@
                 <configuration>
 
                     <mainClass>org.tavall.couriers.TavallCouriersApplication</mainClass>
+                    <jvmArguments>--enable-preview</jvmArguments>
 
                 </configuration>
             </plugin>
