@@ -30,6 +30,9 @@ public final class Routes {
     public static final String DASHBOARD_ACCESS_DENIED = DefaultDashboardEndpoints.DASHBOARD_ACCESS_DENIED_PATH;
     public static final String DASHBOARD_ERROR = DefaultDashboardEndpoints.DASHBOARD_ERROR_PATH;
     public static final String DASHBOARD_STATUS = DefaultDashboardEndpoints.DASHBOARD_STATUS_PATH;
+    public static final String DASHBOARD_CLIENT = DefaultDashboardEndpoints.DASHBOARD_CLIENT_PATH;
+    public static final String DASHBOARD_ADMIN = DefaultDashboardEndpoints.DASHBOARD_ADMIN_PATH;
+    public static final String DASHBOARD_CLIENT_DEV_LOGIN = DefaultDashboardEndpoints.DASHBOARD_CLIENT_DEV_LOGIN_PATH;
     public static final String DASHBOARD_ADMIN_USERS = DefaultDashboardEndpoints.DASHBOARD_ADMIN_USERS_PATH;
 
     // Driver dashboard
@@ -217,6 +220,18 @@ public final class Routes {
 
     public static String dashboardStatus() {
         return DASHBOARD_STATUS;
+    }
+
+    public static String clientDashboard() {
+        return DASHBOARD_CLIENT;
+    }
+
+    public static String adminDashboard() {
+        return DASHBOARD_ADMIN;
+    }
+
+    public static String clientDevLogin() {
+        return DASHBOARD_CLIENT_DEV_LOGIN;
     }
 
     public static String dashboardAdminUsers() {

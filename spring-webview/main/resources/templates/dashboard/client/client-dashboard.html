@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Client Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <div th:class="${@dashboardTemplateCss.join('max-w-6xl mx-auto fade-in')}">
+            <div th:class="${@dashboardTemplateCss.join('flex justify-between items-end mb-6 flex-wrap gap-3')}">
+                <div>
+                    <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}">Client Dashboard</h1>
+                    <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Review your courier contracts, approve pending terms, and request pickups after activation.</p>
+                </div>
+                <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/}">Public Homepage</a>
+            </div>
+
+            <div th:if="${statusMessage != null}" th:class="${@dashboardTemplateCss.join('alert alert-success mb-4')}" th:text="${statusMessage}">Status updated.</div>
+            <div th:if="${errorMessage != null}" th:class="${@dashboardTemplateCss.join('alert alert-danger mb-4')}" th:text="${errorMessage}">Error</div>
+
+            <section th:class="${@dashboardTemplateCss.join('grid grid-cols-1 gap-6 lg:grid-cols-2')}">
+                <article th:each="contract : ${clientContracts}" th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-6')}">
+                    <div th:class="${@dashboardTemplateCss.join('flex justify-between items-start gap-3 flex-wrap mb-4')}">
+                        <div>
+                            <div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-1')}">Contract</div>
+                            <h2 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800')}" th:text="${contract.contractTitle}">Agreement</h2>
+                            <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}" th:text="${contract.clientCompanyName != null ? contract.clientCompanyName : contract.clientDisplayName}">Client</p>
+                        </div>
+                        <span th:class="${@dashboardTemplateCss.join('inline-flex rounded-full bg-amber-100 px-3 py-2 text-xs font-bold uppercase tracking-wide text-amber-700')}" th:text="${contract.status}">PENDING_CLIENT_APPROVAL</span>
+                    </div>
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-3 mb-4 text-sm text-slate-600')}">
+                        <div><strong>Parcel Profile:</strong> <span th:text="${contract.parcelVolumeSummary != null ? contract.parcelVolumeSummary : 'Not set'}">Not set</span></div>
+                        <div><strong>Service Radius:</strong> <span th:text="${contract.serviceRadiusMiles != null ? contract.serviceRadiusMiles + ' miles' : 'Not set'}">Not set</span></div>
+                        <div><strong>Service Zone:</strong> <span th:text="${contract.serviceZone != null ? contract.serviceZone : 'Not set'}">Not set</span></div>
+                        <div><strong>Pickup Zone:</strong> <span th:text="${contract.pickupZone != null ? contract.pickupZone : 'Not set'}">Not set</span></div>
+                    </div>
+                    <div th:utext="${contract.generatedContractHtml}"></div>
+                    <div th:if="${contract.status == 'PENDING_CLIENT_APPROVAL'}" th:class="${@dashboardTemplateCss.join('mt-4 rounded-2xl bg-amber-50 border border-amber-200 p-4')}">
+                        <p th:class="${@dashboardTemplateCss.join('text-sm text-amber-800 mb-3')}">Approving this contract records your requested operating terms. A human reviewer will still review the agreement and contact you with instructions before pickup scheduling becomes active.</p>
+                        <form method="post" th:action="@{'/dashboard/client/contracts/' + ${contract.id} + '/approve'}" th:class="${@dashboardTemplateCss.join('space-y-3')}">
+                            <input type="text" name="signerName" placeholder="Type your full name" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" required/>
+                            <button type="submit" th:class="${@dashboardTemplateCss.join('btn-primary')}">Approve Contract</button>
+                        </form>
+                    </div>
+                </article>
+                <article th:if="${#lists.isEmpty(clientContracts)}" th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-6')}">
+                    <h2 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800 mb-2')}">No saved contracts yet</h2>
+                    <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm mb-4')}">Return to the homepage to build a courier contract and link it to this dashboard.</p>
+                    <a th:class="${@dashboardTemplateCss.join('btn-primary')}" th:href="@{/}">Start Contract Intake</a>
+                </article>
+            </section>
+
+            <section th:class="${@dashboardTemplateCss.join('mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2')}">
+                <article th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-6')}">
+                    <div th:class="${@dashboardTemplateCss.join('flex justify-between items-center mb-4 flex-wrap gap-2')}">
+                        <div>
+                            <div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-1')}">Pickup Scheduling</div>
+                            <h2 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800')}">Request a pickup</h2>
+                        </div>
+                        <span th:class="${@dashboardTemplateCss.join('inline-flex rounded-full bg-slate-100 px-3 py-2 text-xs font-bold uppercase tracking-wide text-slate-500')}" th:text="${#lists.size(activeContracts)} + ' active contracts'">0 active contracts</span>
+                    </div>
+                    <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500 mb-4')}">Pickup scheduling unlocks after Tavall activates your contract. Initial and recurring pickup requests are then routed to dispatch review.</p>
+                    <form method="post" th:action="@{/dashboard/client/pickups}" th:class="${@dashboardTemplateCss.join('space-y-3')}">
+                        <select name="contractId" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:disabled="${#lists.isEmpty(activeContracts)}" required>
+                            <option value="">Select active contract...</option>
+                            <option th:each="contract : ${activeContracts}" th:value="${contract.id}" th:text="${contract.contractTitle + ' - ' + (contract.pickupZone != null ? contract.pickupZone : 'No zone')}">Contract</option>
+                        </select>
+                        <select name="requestType" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:disabled="${#lists.isEmpty(activeContracts)}">
+                            <option value="INITIAL">Initial pickup</option>
+                            <option value="RECURRING">Recurring pickup</option>
+                        </select>
+                        <input type="datetime-local" name="scheduledFor" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:disabled="${#lists.isEmpty(activeContracts)}" required/>
+                        <input type="text" name="pickupZone" placeholder="Pickup zone" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:disabled="${#lists.isEmpty(activeContracts)}"/>
+                        <textarea name="pickupAddress" placeholder="Pickup address" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:disabled="${#lists.isEmpty(activeContracts)}" required></textarea>
+                        <textarea name="notes" placeholder="Notes for dispatch" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:disabled="${#lists.isEmpty(activeContracts)}"></textarea>
+                        <input type="text" name="recurringRule" placeholder="Recurring rule, e.g. Mon-Fri 7:30 AM" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:disabled="${#lists.isEmpty(activeContracts)}"/>
+                        <button type="submit" th:class="${@dashboardTemplateCss.join('btn-primary')}" th:disabled="${#lists.isEmpty(activeContracts)}">Submit Pickup Request</button>
+                    </form>
+                </article>
+                <article th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-6')}">
+                    <div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-1')}">Pickup Queue</div>
+                    <h2 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800 mb-4')}">Recent requests</h2>
+                    <div th:if="${#lists.isEmpty(pickupRequests)}" th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">No pickup requests submitted yet.</div>
+                    <div th:each="pickup : ${pickupRequests}" th:class="${@dashboardTemplateCss.join('rounded-2xl border border-slate-100 bg-slate-50 p-4 mb-3')}">
+                        <div th:class="${@dashboardTemplateCss.join('flex justify-between items-start gap-3 flex-wrap')}">
+                            <div>
+                                <div th:class="${@dashboardTemplateCss.join('text-sm font-bold text-slate-800')}" th:text="${pickup.requestType}">INITIAL</div>
+                                <div th:class="${@dashboardTemplateCss.join('text-xs text-slate-500')}" th:text="${pickup.pickupZone != null ? pickup.pickupZone : 'No pickup zone set'}">Zone</div>
+                            </div>
+                            <span th:class="${@dashboardTemplateCss.join('inline-flex rounded-full bg-blue-100 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700')}" th:text="${pickup.status}">REQUESTED</span>
+                        </div>
+                        <div th:class="${@dashboardTemplateCss.join('text-sm text-slate-600 mt-3')}" th:text="${pickup.pickupAddress}">Address</div>
+                    </div>
+                </article>
+            </section>
+        </div>
+    </div>
+</main>
+<script>lucide.createIcons();</script>
+</body>
+</html>

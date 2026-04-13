@@ -29,14 +29,16 @@ public class UserAccountService {
             "driver", UUID.fromString("11111111-1111-1111-1111-111111111111"),
             "merchant", UUID.fromString("22222222-2222-2222-2222-222222222222"),
             "superuser", UUID.fromString("33333333-3333-3333-3333-333333333333"),
-            "user", UUID.fromString("44444444-4444-4444-4444-444444444444")
+            "user", UUID.fromString("44444444-4444-4444-4444-444444444444"),
+            "client-demo", UUID.fromString("55555555-5555-5555-5555-555555555555")
     );
 
     private static final Map<String, Set<Role>> DEFAULT_USER_ROLES = Map.of(
             "driver", EnumSet.of(Role.DRIVER),
             "merchant", EnumSet.of(Role.MERCHANT),
             "superuser", EnumSet.of(Role.SUPERUSER),
-            "user", EnumSet.of(Role.USER)
+            "user", EnumSet.of(Role.USER),
+            "client-demo", EnumSet.of(Role.CLIENT)
     );
 
     private final UserAccountRepository repo;
@@ -54,28 +56,42 @@ public class UserAccountService {
     }
 
     public UserAccountEntity getOrCreateFromOAuthSubject(String subject, String username) {
+        return getOrCreateFromExternalIdentity(subject, username, Set.of());
+    }
+
+    public UserAccountEntity getOrCreateFromExternalIdentity(String subject,
+                                                             String username,
+                                                             Set<Role> requestedRoles) {
         Objects.requireNonNull(subject, "subject");
         Objects.requireNonNull(username, "username");
+        String normalizedUsername = username.trim();
+        Set<Role> resolvedRoles = resolveRequestedRoles(normalizedUsername, requestedRoles);
 
         UserAccount cached = userCache.findByExternalSubject(subject);
         if (cached != null) {
             Log.info("User cache hit for subject: " + subject);
-            return toEntity(cached);
+            UserAccountEntity cachedEntity = toEntity(cached);
+            return syncExternalIdentity(cachedEntity, subject, normalizedUsername, resolvedRoles);
         }
 
         UserAccountEntity existing = repo.findByExternalSubject(subject).orElse(null);
         if (existing != null) {
             Log.info("User loaded from database: " + existing.getUsername());
-            userCache.registerUser(toDomain(existing));
-            return existing;
+            return syncExternalIdentity(existing, subject, normalizedUsername, resolvedRoles);
+        }
+
+        UserAccountEntity existingByUsername = repo.findByUsernameIgnoreCase(normalizedUsername).orElse(null);
+        if (existingByUsername != null) {
+            Log.info("User loaded by username: " + existingByUsername.getUsername());
+            return syncExternalIdentity(existingByUsername, subject, normalizedUsername, resolvedRoles);
         }
 
         UserAccountEntity created = new UserAccountEntity(
-                resolveDefaultId(username),
+                resolveDefaultId(normalizedUsername),
                 subject,
-                username,
+                normalizedUsername,
                 true,
-                resolveDefaultRoles(username),
+                resolvedRoles,
                 Instant.now()
         );
         persistAsync(created);
@@ -104,6 +120,19 @@ public class UserAccountService {
         }
         primeCacheAsync();
         Log.info("User cache priming in background; username lookup deferred: " + username);
+        return null;
+    }
+
+    public UserAccountEntity findByExternalSubject(String subject) {
+        if (subject == null || subject.isBlank()) {
+            return null;
+        }
+        UserAccount cached = userCache.findByExternalSubject(subject);
+        if (cached != null || userCache.isPrimed()) {
+            return toEntity(cached);
+        }
+        primeCacheAsync();
+        Log.info("User cache priming in background; subject lookup deferred: " + subject);
         return null;
     }
 
@@ -305,5 +334,57 @@ public class UserAccountService {
         String key = username.trim().toLowerCase(Locale.ROOT);
         Set<Role> roles = DEFAULT_USER_ROLES.get(key);
         return roles == null ? EnumSet.of(Role.USER) : EnumSet.copyOf(roles);
+    }
+
+    private Set<Role> resolveRequestedRoles(String username, Set<Role> requestedRoles) {
+        if (requestedRoles == null || requestedRoles.isEmpty()) {
+            return resolveDefaultRoles(username);
+        }
+        return EnumSet.copyOf(requestedRoles);
+    }
+
+    private UserAccountEntity syncExternalIdentity(UserAccountEntity entity,
+                                                   String subject,
+                                                   String username,
+                                                   Set<Role> requestedRoles) {
+        boolean changed = false;
+        if (entity == null) {
+            return null;
+        }
+        if (subject != null && !subject.equals(entity.externalSubject())) {
+            entity.setExternalSubject(subject);
+            changed = true;
+        }
+        if (username != null && !username.equals(entity.getUsername())) {
+            entity.setUsername(username);
+            changed = true;
+        }
+        Set<Role> mergedRoles = mergeRoles(entity.getRoles(), requestedRoles);
+        if (!mergedRoles.equals(entity.getRoles())) {
+            entity.setRoles(mergedRoles);
+            changed = true;
+        }
+        if (!entity.enabled()) {
+            entity.setEnabled(true);
+            changed = true;
+        }
+        if (changed) {
+            persistAsync(entity);
+        }
+        userCache.registerUser(toDomain(entity));
+        return entity;
+    }
+
+    private Set<Role> mergeRoles(Set<Role> existingRoles, Set<Role> requestedRoles) {
+        Set<Role> merged = existingRoles == null || existingRoles.isEmpty()
+                ? EnumSet.noneOf(Role.class)
+                : EnumSet.copyOf(existingRoles);
+        if (requestedRoles != null && !requestedRoles.isEmpty()) {
+            merged.addAll(requestedRoles);
+        }
+        if (merged.isEmpty()) {
+            merged.add(Role.USER);
+        }
+        return merged;
     }
 }

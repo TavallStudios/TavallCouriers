@@ -31,7 +31,7 @@ public class MerchantDashboardController {
 
     @GetMapping(Routes.MERCHANT_DASHBOARD)
     public String dashboard(Model model, @RequestParam(value = "created", required = false) String createdUuid) {
-        return helper.dashboard(model, createdUuid);
+        return "redirect:" + Routes.adminDashboard();
     }
 
     @GetMapping(Routes.MERCHANT_CREATE_SHIPMENT_PAGE)

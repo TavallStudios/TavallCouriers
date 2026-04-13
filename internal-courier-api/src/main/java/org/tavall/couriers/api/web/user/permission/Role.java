@@ -20,6 +20,12 @@ public enum Role {
 
     USER(EnumSet.noneOf(UserPermissions.class)),
 
+    CLIENT(EnumSet.of(
+            UserPermissions.CLIENT_CONTRACT_VIEW,
+            UserPermissions.CLIENT_CONTRACT_APPROVE,
+            UserPermissions.CLIENT_PICKUP_CREATE,
+            UserPermissions.USER_VIEW_SELF)),
+
     DRIVER(EnumSet.of(
             UserPermissions.DELIVERY_TRANSITION_BASIC,
             UserPermissions.SHIPMENT_VIEW,

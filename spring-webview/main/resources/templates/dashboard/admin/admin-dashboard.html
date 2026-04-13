@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Admin Operations</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <div th:class="${@dashboardTemplateCss.join('max-w-6xl mx-auto fade-in')}">
+            <div th:class="${@dashboardTemplateCss.join('flex justify-between items-end mb-6 flex-wrap gap-3')}">
+                <div>
+                    <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}">Admin Operations</h1>
+                    <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Unified control surface for courier contracts, client onboarding, shipments, routes, and dispatch intake.</p>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('flex gap-2 flex-wrap')}">
+                    <a th:class="${@dashboardTemplateCss.join('btn-secondary')}" th:href="@{/dashboard/admin/users}">Manage Users</a>
+                    <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/dashboard/merchant/scan}">Scan Intake</a>
+                </div>
+            </div>
+
+            <div th:if="${statusMessage != null}" th:class="${@dashboardTemplateCss.join('alert alert-success mb-4')}" th:text="${statusMessage}">Updated.</div>
+            <div th:if="${errorMessage != null}" th:class="${@dashboardTemplateCss.join('alert alert-danger mb-4')}" th:text="${errorMessage}">Error.</div>
+
+            <section th:class="${@dashboardTemplateCss.join('grid grid-cols-1 gap-4 md:grid-cols-4 mb-8')}">
+                <article th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-5')}"><div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-2')}">Shipments</div><div th:class="${@dashboardTemplateCss.join('text-3xl font-bold text-slate-800')}" th:text="${totalShipments}">0</div><a th:class="${@dashboardTemplateCss.join('text-sm text-blue-600 font-medium')}" th:href="@{/dashboard/merchant/shipments}">Open shipment library</a></article>
+                <article th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-5')}"><div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-2')}">Routes</div><div th:class="${@dashboardTemplateCss.join('text-3xl font-bold text-slate-800')}" th:text="${routeCount}">0</div><a th:class="${@dashboardTemplateCss.join('text-sm text-blue-600 font-medium')}" th:href="@{/dashboard/merchant/routes}">Open route planner</a></article>
+                <article th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-5')}"><div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-2')}">Pending Contracts</div><div th:class="${@dashboardTemplateCss.join('text-3xl font-bold text-slate-800')}" th:text="${#lists.size(pendingContracts)}">0</div><span th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">Awaiting internal review</span></article>
+                <article th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-5')}"><div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-2')}">Pickup Requests</div><div th:class="${@dashboardTemplateCss.join('text-3xl font-bold text-slate-800')}" th:text="${#lists.size(pickupRequests)}">0</div><span th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">Client submitted queue</span></article>
+            </section>
+
+            <section th:class="${@dashboardTemplateCss.join('grid grid-cols-1 gap-6 lg:grid-cols-2 mb-8')}">
+                <article th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-6')}">
+                    <div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-1')}">Active Contract Template</div>
+                    <h2 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800 mb-4')}">Template and binding placeholders</h2>
+                    <form method="post" th:action="@{/dashboard/admin/template}" th:class="${@dashboardTemplateCss.join('space-y-3')}">
+                        <input type="text" name="templateTitle" placeholder="Template title" th:value="${activeTemplate != null ? activeTemplate.templateTitle : ''}" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" required/>
+                        <textarea name="introText" placeholder="Intro text" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:text="${activeTemplate != null ? activeTemplate.introText : ''}"></textarea>
+                        <textarea name="operationsText" placeholder="Operations text" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:text="${activeTemplate != null ? activeTemplate.operationsText : ''}"></textarea>
+                        <textarea name="pricingText" placeholder="Pricing text" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:text="${activeTemplate != null ? activeTemplate.pricingText : ''}"></textarea>
+                        <textarea name="reviewNotice" placeholder="Review notice" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:text="${activeTemplate != null ? activeTemplate.reviewNotice : ''}"></textarea>
+                        <input type="text" name="bindingPartyName" placeholder="Binding party name" th:value="${activeTemplate != null ? activeTemplate.bindingPartyName : ''}" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}"/>
+                        <textarea name="bindingPartyAddress" placeholder="Binding party address" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" th:text="${activeTemplate != null ? activeTemplate.bindingPartyAddress : ''}"></textarea>
+                        <button type="submit" th:class="${@dashboardTemplateCss.join('btn-primary')}">Save Template</button>
+                    </form>
+                </article>
+                <article th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-6')}">
+                    <div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-1')}">Client and Terms</div>
+                    <h2 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800 mb-4')}">Add clients and adjustable contract fields</h2>
+                    <form method="post" th:action="@{/dashboard/admin/clients/create}" th:class="${@dashboardTemplateCss.join('space-y-3 mb-6')}">
+                        <input type="text" name="clientUsername" placeholder="client@email.com" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" required/>
+                        <button type="submit" th:class="${@dashboardTemplateCss.join('btn-secondary')}">Create Client Account</button>
+                    </form>
+                    <form method="post" th:action="@{/dashboard/admin/terms}" th:class="${@dashboardTemplateCss.join('space-y-3')}">
+                        <input type="text" name="code" placeholder="termCode" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" required/>
+                        <input type="text" name="label" placeholder="Label" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" required/>
+                        <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-3')}"><input type="text" name="inputType" placeholder="text/select/number/email" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" required/><input type="text" name="category" placeholder="Category" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" required/></div>
+                        <textarea name="helpText" placeholder="Help text" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}"></textarea>
+                        <textarea name="optionsText" placeholder="Select options, one per line" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}"></textarea>
+                        <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-3')}"><input type="text" name="defaultValue" placeholder="Default value" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}"/><input type="number" name="displayOrder" placeholder="Display order" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}" value="999"/></div>
+                        <label th:class="${@dashboardTemplateCss.join('flex items-center gap-2 text-sm text-slate-600')}"><input type="checkbox" name="required" value="true"/> Required field</label>
+                        <button type="submit" th:class="${@dashboardTemplateCss.join('btn-primary')}">Save Term Definition</button>
+                    </form>
+                </article>
+            </section>
+
+            <section th:class="${@dashboardTemplateCss.join('grid grid-cols-1 gap-6 lg:grid-cols-2')}">
+                <article th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-6')}">
+                    <div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-1')}">Pending Client Approval Reviews</div>
+                    <h2 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800 mb-4')}">Contracts awaiting internal action</h2>
+                    <div th:if="${#lists.isEmpty(pendingContracts)}" th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">No client-approved contracts are waiting for review.</div>
+                    <div th:each="contract : ${pendingContracts}" th:class="${@dashboardTemplateCss.join('rounded-2xl border border-slate-100 bg-slate-50 p-4 mb-4')}">
+                        <div th:class="${@dashboardTemplateCss.join('flex justify-between items-start gap-3 flex-wrap mb-3')}">
+                            <div><div th:class="${@dashboardTemplateCss.join('text-lg font-bold text-slate-800')}" th:text="${contract.contractTitle}">Contract</div><div th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}" th:text="${contract.clientCompanyName != null ? contract.clientCompanyName : contract.clientDisplayName}">Client</div></div>
+                            <span th:class="${@dashboardTemplateCss.join('inline-flex rounded-full bg-amber-100 px-3 py-2 text-xs font-bold uppercase tracking-wide text-amber-700')}" th:text="${contract.status}">PENDING_INTERNAL_REVIEW</span>
+                        </div>
+                        <div th:class="${@dashboardTemplateCss.join('text-sm text-slate-600 mb-3')}" th:text="${contract.pricingSummary != null ? contract.pricingSummary : 'No pricing summary supplied.'}">Pricing</div>
+                        <form method="post" th:action="@{'/dashboard/admin/contracts/' + ${contract.id} + '/activate'}" th:class="${@dashboardTemplateCss.join('space-y-3 mb-3')}"><textarea name="reviewNotes" placeholder="Activation notes" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}"></textarea><button type="submit" th:class="${@dashboardTemplateCss.join('btn-primary')}">Activate Contract</button></form>
+                        <form method="post" th:action="@{'/dashboard/admin/contracts/' + ${contract.id} + '/reject'}"><textarea name="reviewNotes" placeholder="Rejection notes" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none mb-3')}"></textarea><button type="submit" th:class="${@dashboardTemplateCss.join('btn-secondary')}">Reject Contract</button></form>
+                    </div>
+                </article>
+                <article th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl border border-slate-100 shadow-sm p-6')}">
+                    <div th:class="${@dashboardTemplateCss.join('text-xs font-bold uppercase tracking-wide text-slate-400 mb-1')}">Live Queue</div>
+                    <h2 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800 mb-4')}">Pickup requests and client directory</h2>
+                    <div th:each="pickup : ${pickupRequests}" th:class="${@dashboardTemplateCss.join('rounded-2xl border border-slate-100 bg-slate-50 p-4 mb-3')}">
+                        <div th:class="${@dashboardTemplateCss.join('flex justify-between items-start gap-3 flex-wrap')}"><div><div th:class="${@dashboardTemplateCss.join('text-sm font-bold text-slate-800')}" th:text="${pickup.requestType + ' pickup'}">INITIAL</div><div th:class="${@dashboardTemplateCss.join('text-xs text-slate-500')}" th:text="${pickup.pickupZone != null ? pickup.pickupZone : 'No zone'}">Zone</div></div><span th:class="${@dashboardTemplateCss.join('inline-flex rounded-full bg-blue-100 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700')}" th:text="${pickup.status}">REQUESTED</span></div>
+                        <div th:class="${@dashboardTemplateCss.join('text-sm text-slate-600 mt-3')}" th:text="${pickup.pickupAddress}">Address</div>
+                    </div>
+                    <div th:class="${@dashboardTemplateCss.join('mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4')}">
+                        <div th:class="${@dashboardTemplateCss.join('text-sm font-bold text-slate-800 mb-2')}">User directory</div>
+                        <div th:each="user : ${adminUsers}" th:class="${@dashboardTemplateCss.join('flex justify-between items-center text-sm text-slate-600 py-2 border-b border-slate-200 last:border-b-0')}"><span th:text="${user.username}">user</span><span th:text="${user.roles}">[ROLE]</span></div>
+                    </div>
+                </article>
+            </section>
+        </div>
+    </div>
+</main>
+<script>lucide.createIcons();</script>
+</body>
+</html>

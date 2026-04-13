@@ -19,7 +19,7 @@
                     <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}" th:text="${title}">User Management</h1>
                     <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Promote or demote drivers from your roster.</p>
                 </div>
-                <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/dashboard}">Back to Dashboard</a>
+                <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/dashboard/admin}">Back to Admin</a>
             </div>
 
             <div th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden')}">

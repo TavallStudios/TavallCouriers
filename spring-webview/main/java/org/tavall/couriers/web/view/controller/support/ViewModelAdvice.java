@@ -21,6 +21,7 @@ public class ViewModelAdvice {
             Role.MERCHANT,
             Role.DRIVER,
             Role.SUPPORT,
+            Role.CLIENT,
             Role.USER,
             Role.CUSTOMER,
             Role.SYSTEM
@@ -64,6 +65,6 @@ public class ViewModelAdvice {
             return false;
         }
         String normalized = roleName.trim().toUpperCase(Locale.ROOT);
-        return "SUPERUSER".equals(normalized) || "MERCHANT".equals(normalized);
+        return "SUPERUSER".equals(normalized) || "MERCHANT".equals(normalized) || "SUPPORT".equals(normalized);
     }
 }

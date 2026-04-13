@@ -2,7 +2,9 @@ package org.tavall.couriers.web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.env.Environment;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,6 +17,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.tavall.couriers.api.web.endpoints.dashboard.DefaultDashboardEndpoints;
 import org.tavall.couriers.api.web.user.permission.Role;
+import org.tavall.couriers.web.security.oauth.ClientOAuth2LoginSuccessHandler;
+import org.tavall.couriers.web.security.oauth.ClientOAuth2UserService;
 
 
 @Configuration
@@ -23,7 +27,10 @@ import org.tavall.couriers.api.web.user.permission.Role;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository,
+                                                   ClientOAuth2UserService clientOAuth2UserService,
+                                                   ClientOAuth2LoginSuccessHandler clientOAuth2LoginSuccessHandler) throws Exception {
 
         http
                 // Allow public entry pages; protect dashboards and redirect unauth users home.
@@ -33,12 +40,18 @@ public class SecurityConfig {
                                 "/dashboard",             // dashboard entry (guest redirects to login)
                                 "/dashboard/home",        // alias entry
                                 "/dashboard/login",       // GET login page
+                                "/dashboard/client/dev-login",
+                                "/dashboard/client/google/start",
+                                "/oauth2/**",
+                                "/api/client/contracts/**",
                                 "/tracking",              // public tracking entry
                                 "/tracking/**",           // public tracking detail
                                 "/css/**",
                                 "/js/**",
                                 "/images/**"
                         ).permitAll()
+                        .requestMatchers("/dashboard/client/**").hasRole("CLIENT")
+                        .requestMatchers("/dashboard/admin/**").hasAnyRole("MERCHANT", "SUPERUSER", "SUPPORT")
                         .requestMatchers("/purchase").hasAnyRole("MERCHANT", "DRIVER", "SUPERUSER")
                         .anyRequest().authenticated()
                 )
@@ -81,6 +94,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/internal/api/v1/stream/frame")
                 );
+
+        if (clientRegistrationRepository.getIfAvailable() != null) {
+            http.oauth2Login(oauth -> oauth
+                    .loginPage("/dashboard/login")
+                    .userInfoEndpoint(userInfo -> userInfo.userService(clientOAuth2UserService))
+                    .successHandler(clientOAuth2LoginSuccessHandler)
+                    .failureUrl("/dashboard/login?oauthError=true")
+            );
+        }
 
         return http.build();
     }
