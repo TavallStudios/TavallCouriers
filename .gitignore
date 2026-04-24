@@ -217,3 +217,9 @@ tmp/
 /test-output/
 /secrets/
 /keys/
+
+# Local scratch and design artifacts
+.codex-*.png
+*.patch
+*.status.txt
+tavall-web-engine/
