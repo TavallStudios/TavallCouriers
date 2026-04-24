@@ -1,0 +1,69 @@
+﻿# Tavall Couriers — Demo Steps
+
+## 0) Prereqs
+- Java **25** (preview enabled) + Maven
+- Postgres (local install) *or* a Docker Postgres
+- (Optional) Gemini features: `GEMINI_API_KEY`
+
+## 1) Start Postgres + create schema
+
+Create a database (example: `tavall_couriers`) and apply `schemas/schema.sql`.
+
+**Option A — local `psql`:**
+```ps1
+psql -U postgres -c "CREATE DATABASE tavall_couriers;"
+psql -U postgres -d tavall_couriers -f .\schemas\schema.sql
+```
+
+**Option B — Docker Postgres:**
+```ps1
+docker run --name tavall-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=tavall_couriers -p 5432:5432 -d postgres:16
+psql -h localhost -U postgres -d tavall_couriers -f .\schemas\schema.sql
+```
+
+## 2) Configure database connection
+Update `spring-webview/main/resources/application.properties` (or pass `--spring.datasource.*` via the CLI) with your Postgres details:
+```properties
+spring.datasource.url=jdbc:postgresql://<host>:<port>/tavall_couriers
+spring.datasource.username=<user>
+spring.datasource.password=<pass>
+```
+Spring's auto-configuration will wire Hikari/EntityManager from these values.
+
+## 3) Run the web app
+From repo root:
+```ps1
+mvn -pl spring-webview spring-boot:run
+```
+App will be on `http://localhost:8080` (default Spring port).
+
+## 4) Login accounts (demo)
+Go to `http://localhost:8080/dashboard/login`:
+- Driver: `driver` / `driver`
+- Merchant: `merchant` / `merchant`
+- Superuser: `superuser` / `superuser`
+- Basic user: `user` / `user`
+
+## 5) Quick demo flows
+
+### Merchant flow (create shipments + routes)
+1. Login as `merchant`.
+2. Create a shipment label (recipient + address + optional “deliver by”).
+3. Open shipments view and confirm the new label exists (copy UUID / tracking).
+4. Create a route from selected labels, assign a driver, and view route details.
+
+### Driver flow (scan + transition state)
+1. Login as `driver`.
+2. Create a label (if you need something to scan) or open Scan page.
+3. Scan a label/QR (camera page supports frame upload/stream endpoints).
+4. Pick an allowed next state and submit transition.
+
+### Customer flow (tracking)
+1. Go to `http://localhost:8080/tracking`.
+2. Enter a tracking number from a created label (format typically starts with `TAVALL`).
+
+## 6) Optional: enable Gemini features
+If you want AI scanning/validation/routing:
+```ps1
+$env:GEMINI_API_KEY="YOUR_KEY"
+```
