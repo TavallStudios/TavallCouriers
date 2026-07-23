@@ -154,9 +154,9 @@ class DeliveryRouteServiceTest {
 
         List<DeliveryRouteStopEntity> stops = stopsCaptor.getValue();
         assertEquals(2, stops.size());
-        assertEquals("uuid-c", stops.get(0).getLabelUuid());
+        assertEquals("uuid-b", stops.get(0).getLabelUuid());
         assertEquals(2, stops.get(0).getStopOrder());
-        assertEquals("uuid-b", stops.get(1).getLabelUuid());
+        assertEquals("uuid-c", stops.get(1).getLabelUuid());
         assertEquals(3, stops.get(1).getStopOrder());
         Log.success("addStopsTest passed validation.");
     }

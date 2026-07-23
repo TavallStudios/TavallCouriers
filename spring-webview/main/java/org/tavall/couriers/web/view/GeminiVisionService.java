@@ -87,15 +87,14 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
 
     @Override
     public Gemini3Response<ScanResponse> analyzeFrame(byte[] frameData, boolean shouldScanQR) {
-        //TODO: Currently this creates one client per call
-        this.client = new Gemini3ImageClient(scanResponseSchema.getScanResponseSchema());
-
         try {
             if (frameData == null || frameData.length == 0) {
                 Log.warn("[GeminiVision] Empty frame received.");
                 // Return empty record with nulls for new fields
                 return new Gemini3Response<>(new ScanResponse(null, CameraState.ERROR, GeminiResponseState.ERROR, null, null, null, null, null, null, null, null, null, "Empty Frame Data", null, false, false));
             }
+            //TODO: Currently this creates one client per non-empty call
+            this.client = new Gemini3ImageClient(scanResponseSchema.getScanResponseSchema());
             Log.info("[GeminiVision] Frame received (" + frameData.length + " bytes).");
             boolean documentDetected = looksLikeDocument(frameData);
             if (!documentDetected) {
@@ -881,5 +880,4 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
     }
 
 }
-
 
