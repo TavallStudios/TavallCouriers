@@ -18,15 +18,28 @@ class Gemini3ImageClientTest {
     @BeforeEach
     void setUp() {
         log("Setting up Gemini3ImageClient test environment");
-        client = new Gemini3ImageClient();
+        Client offlineClient = Client.builder()
+                .apiKey("offline-test-key")
+                .build();
+        client = new Gemini3ImageClient(offlineClient);
     }
 
     @Test
     void testDefaultConstructor() {
         log("Testing default constructor initialization");
 
-        assertNotNull(client, "Client should not be null");
-        assertNotNull(client.getClient(), "Internal Client should be initialized");
+        String apiKey = System.getenv("GEMINI_API_KEY");
+        if (apiKey == null || apiKey.isBlank()) {
+            RuntimeException error = assertThrows(
+                    RuntimeException.class,
+                    Gemini3ImageClient::new,
+                    "Default construction should fail clearly without credentials"
+            );
+            assertEquals("CRITICAL: GEMINI_API_KEY missing.", error.getMessage());
+        } else {
+            Gemini3ImageClient environmentClient = new Gemini3ImageClient();
+            assertNotNull(environmentClient.getClient(), "Internal Client should be initialized");
+        }
 
         log("✓ Default constructor test passed");
     }
@@ -36,7 +49,7 @@ class Gemini3ImageClientTest {
         log("Testing constructor with provided Client instance");
 
         Client mockClient = Client.builder()
-                .apiKey(System.getenv("GEMINI_API_KEY"))
+                .apiKey("offline-test-key")
                 .build();
         Gemini3ImageClient customClient = new Gemini3ImageClient(mockClient);
 
@@ -150,7 +163,7 @@ class Gemini3ImageClientTest {
         log("  - API Key found in environment");
 
         try {
-            Client geminiClient = client.getClient();
+            Client geminiClient = new Gemini3ImageClient().getClient();
             assertNotNull(geminiClient, "Gemini client should be initialized");
             log("  - Client initialized successfully");
 

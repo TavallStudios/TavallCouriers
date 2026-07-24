@@ -174,6 +174,7 @@ project(":spring-webview") {
         "testImplementation"("org.springframework.boot:spring-boot-starter-data-jpa-test:$springBootVersion")
         "testImplementation"("org.testcontainers:junit-jupiter:$testcontainersVersion")
         "testImplementation"("org.testcontainers:postgresql:$testcontainersVersion")
+        "testRuntimeOnly"("com.h2database:h2:2.4.240")
         "testRuntimeOnly"("org.junit.platform:junit-platform-launcher:$junitVersion")
     }
 
