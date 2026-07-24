@@ -7,6 +7,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.tavall.couriers.api.qr.scan.state.CameraState;
 
 import java.io.Serializable;
@@ -24,6 +26,7 @@ public class ScanResponseEntity implements Serializable {
     private String uuid;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "camera_state", nullable = false, length = 40)
     private CameraState cameraState;
 
@@ -183,4 +186,3 @@ public class ScanResponseEntity implements Serializable {
         this.notes = notes;
     }
 }
-

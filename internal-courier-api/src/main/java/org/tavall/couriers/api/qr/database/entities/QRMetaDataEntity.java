@@ -7,6 +7,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.tavall.couriers.api.qr.enums.QRState;
 import org.tavall.couriers.api.qr.enums.QRType;
 
@@ -32,10 +34,12 @@ public class QRMetaDataEntity implements Serializable {
     private Instant createdAt;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "qr_type", nullable = false, length = 40)
     private QRType qrType;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "qr_state", nullable = false, length = 40)
     private QRState qrState;
 

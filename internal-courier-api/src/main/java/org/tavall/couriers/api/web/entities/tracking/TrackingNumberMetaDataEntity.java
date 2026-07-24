@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.tavall.couriers.api.delivery.state.DeliveryState;
 
 @Entity
@@ -26,6 +28,7 @@ public class TrackingNumberMetaDataEntity implements Serializable {
     private UUID qrUuid;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "delivery_state", nullable = false, length = 32)
     private DeliveryState deliveryState = DeliveryState.LABEL_CREATED;
 

@@ -7,6 +7,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.tavall.couriers.api.delivery.state.DeliveryState;
 
 import java.io.Serializable;
@@ -54,6 +56,7 @@ public class ShippingLabelMetaDataEntity implements Serializable {
     private Instant deliverBy;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "delivery_state", length = 40)
     private DeliveryState deliveryState;
 
