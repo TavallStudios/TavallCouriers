@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Testcontainers
-@EntityScan(basePackages = "org.tavall.couriers.api.database")
+@EntityScan(basePackages = "org.tavall.couriers.api")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource(properties = {
         "spring.main.web-application-type=none",
@@ -51,7 +51,8 @@ class DatabaseEntitiesTest {
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:17")
             .withDatabaseName("tavall_test")
             .withUsername("tavall")
-            .withPassword("tavall");
+            .withPassword("tavall")
+            .withInitScript("create-test-schema.sql");
 
     @DynamicPropertySource
     static void registerDataSourceProperties(DynamicPropertyRegistry registry) {

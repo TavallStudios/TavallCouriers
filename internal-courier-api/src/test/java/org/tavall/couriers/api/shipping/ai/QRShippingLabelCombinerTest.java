@@ -28,9 +28,7 @@ public class QRShippingLabelCombinerTest {
     private QRShippingLabelCombiner combiner;
     private File qrFile;
 
-    // The specific filename you requested
-    private static final String REAL_QR_FILENAME = "qr-1770107206213.png";
-    private static final String OUTPUT_FILENAME = "shipping_label_manual_debug.pdf";
+    private static final String QR_FIXTURE_FILENAME = "qr-9bf52427-b54a-4b87-b970-813f8ca6d8ab.png";
 
     @TempDir
     Path tempDir;
@@ -41,15 +39,11 @@ public class QRShippingLabelCombinerTest {
 
         combiner = new QRShippingLabelCombiner();
 
-        // 1. Try to find the REAL file in the project root
-        File realFile = new File(REAL_QR_FILENAME);
-
-        if (realFile.exists()) {
-            System.out.println("Test using REAL QR file: " + realFile.getAbsolutePath());
-            qrFile = realFile;
-        } else {
-            Log.error("REAL QR file not found: Test can not run");
-        }
+        Path moduleFixture = Path.of(QR_FIXTURE_FILENAME);
+        Path rootFixture = Path.of("internal-courier-api", QR_FIXTURE_FILENAME);
+        Path fixture = Files.exists(moduleFixture) ? moduleFixture : rootFixture;
+        qrFile = fixture.toFile();
+        assertTrue(qrFile.isFile(), "QR fixture is missing: " + fixture.toAbsolutePath());
     }
 
 
@@ -71,9 +65,7 @@ public class QRShippingLabelCombinerTest {
                 deliverBy,
                 DeliveryState.LABEL_CREATED);
 
-        // 2. Define Persistent Output Path
-        // This puts it right in the folder where you run the test (Project Root)
-        Path outputPath = Paths.get(OUTPUT_FILENAME);
+        Path outputPath = tempDir.resolve("shipping-label.pdf");
 
         // 3. Act
         combiner.createLabel(qrFile.getAbsolutePath(), data, outputPath);

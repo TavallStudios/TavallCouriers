@@ -1,7 +1,7 @@
 ﻿# Tavall Couriers — Demo Steps
 
 ## 0) Prereqs
-- Java **25** (preview enabled) + Maven
+- Java **25** (preview enabled) + Gradle
 - Postgres (local install) *or* a Docker Postgres
 - (Optional) Gemini features: `GEMINI_API_KEY`
 
@@ -33,7 +33,7 @@ Spring's auto-configuration will wire Hikari/EntityManager from these values.
 ## 3) Run the web app
 From repo root:
 ```ps1
-mvn -pl spring-webview spring-boot:run
+.\gradlew.bat :spring-webview:run
 ```
 App will be on `http://localhost:8080` (default Spring port).
 

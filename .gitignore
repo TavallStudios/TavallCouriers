@@ -97,7 +97,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-target/
+.gradle/
+distribution/
+/internal-courier-api/qr-*.png
 
 pom.xml.tag
 pom.xml.releaseBackup
