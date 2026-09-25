@@ -34,7 +34,12 @@ subprojects {
     }
 
     repositories {
-        mavenCentral()
+        mavenCentral {
+            content {
+                excludeGroupByRegex("org\\.tavall(?:\\..*)?")
+                excludeGroupByRegex("com\\.tavall(?:\\..*)?")
+            }
+        }
     }
 
     dependencyLocking {
