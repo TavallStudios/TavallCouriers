@@ -1,0 +1,37 @@
+version: 2
+
+source:
+  repository: TavallStudios/TavallCouriers
+  provider: github
+
+build:
+  type: gradle
+  java: 25
+  gradle: 9.6.1
+
+resources:
+  mode: SYSTEM
+
+artifacts:
+  - name: tavall-couriers-runtime
+    path: spring-webview/build/libs/tavall-couriers.jar
+
+requiredChecks:
+  - quality
+
+checks:
+  quality:
+    executor: gradle
+    tasks:
+      - "clean"
+      - ":gemini-api:clean"
+      - ":internal-courier-api:clean"
+      - ":spring-webview:clean"
+      - "check"
+      - ":gemini-api:check"
+      - ":internal-courier-api:check"
+      - ":spring-webview:check"
+      - "assemble"
+      - ":gemini-api:assemble"
+      - ":internal-courier-api:assemble"
+      - ":spring-webview:assemble"
