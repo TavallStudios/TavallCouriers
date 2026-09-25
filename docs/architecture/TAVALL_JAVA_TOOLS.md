@@ -11,3 +11,5 @@ Use Tavall Registry, Cache, EventBus, Reflection, and Scheduler when those conce
 Do not add first-party ServiceLoader composition, service locators, executor frameworks, logging wrappers, registry/cache/event frameworks, reflection scanners, scheduled executors, or database infrastructure when a Tavall tool owns the concern.
 
 Exact Java 25 verification, dependency-lock refresh, PostgreSQL integration tests, AI/provider tests, and Spring runtime acceptance are required before promotion.
+
+Tavall module inputs are declared in `.tavallci` and composed from exact sources by Tavall CI. Maven Local and GitHub Packages are not internal dependency authorities; the Cloud Executor provisions Java 25 and the approved Gradle environment.
