@@ -10,6 +10,8 @@ extra["fallbackVersion"] = "0.0.1"
 apply(from = "gradle/git-version.gradle.kts")
 version = extra["gitVersion"] as String
 
+val tavallToolsVersion = "1.0.0"
+
 val springBootVersion = "4.0.2"
 val springFrameworkVersion = "7.0.3"
 val jacksonVersion = "2.20.1"
@@ -26,6 +28,16 @@ subprojects {
     version = rootProject.version
 
     apply(plugin = "java-library")
+
+    // Keep Tavall dependency declarations in the repository-owned Gradle project.
+    dependencies.add("implementation", "org.tavall:tavall-di:$tavallToolsVersion")
+    if (path == ":internal-courier-api" || path == ":spring-webview") {
+        dependencies.add("implementation", "org.tavall:tavall-database-postgres:$tavallToolsVersion")
+    }
+    if (path == ":spring-webview") {
+        dependencies.add("implementation", "org.tavall:tavall-logging:$tavallToolsVersion")
+        dependencies.add("implementation", "org.tavall:tavall-concurrency:$tavallToolsVersion")
+    }
     apply(plugin = "maven-publish")
 
     extensions.configure<JavaPluginExtension> {
