@@ -1,0 +1,43 @@
+version: 2
+
+source:
+  repository: TavallStudios/TavallCouriers
+  provider: github
+
+build:
+  type: gradle
+  java: 25
+  gradle: 9.6.1
+
+resources:
+  mode: SYSTEM
+
+dependencies:
+  - kind: source
+    identity: TavallStudios/tavall-di
+    role: SHARED_DEP
+    selector: required-source
+
+artifacts:
+  - name: tavall-couriers-gemini-api-lockfile
+    path: gradle.lockfile
+
+requiredChecks:
+  - quality
+
+checks:
+  quality:
+    executor: gradle
+    tasks:
+      - "clean"
+      - "check"
+      - "assemble"
+
+  dependencies:
+    executor: gradle
+    writeDependencyLocks: true
+    includeInAll: false
+    tasks:
+      - "clean"
+      - "check"
+      - "assemble"
