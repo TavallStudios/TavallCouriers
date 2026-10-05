@@ -12,6 +12,11 @@ build:
 resources:
   mode: SYSTEM
 
+modules:
+  - gemini-api
+  - internal-courier-api
+  - spring-webview
+
 dependencies:
   - kind: source
     identity: TavallStudios/tavall-cache
