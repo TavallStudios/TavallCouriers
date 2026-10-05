@@ -58,6 +58,12 @@ dependencies:
 artifacts:
   - name: tavall-couriers-runtime
     path: spring-webview/build/libs/tavall-couriers.jar
+  - name: tavall-couriers-gemini-api-lockfile
+    path: gemini-api/gradle.lockfile
+  - name: tavall-couriers-internal-api-lockfile
+    path: internal-courier-api/gradle.lockfile
+  - name: tavall-couriers-spring-webview-lockfile
+    path: spring-webview/gradle.lockfile
 
 requiredChecks:
   - quality
@@ -65,6 +71,24 @@ requiredChecks:
 checks:
   quality:
     executor: gradle
+    tasks:
+      - "clean"
+      - ":gemini-api:clean"
+      - ":internal-courier-api:clean"
+      - ":spring-webview:clean"
+      - "check"
+      - ":gemini-api:check"
+      - ":internal-courier-api:check"
+      - ":spring-webview:check"
+      - "assemble"
+      - ":gemini-api:assemble"
+      - ":internal-courier-api:assemble"
+      - ":spring-webview:assemble"
+
+  dependencies:
+    executor: gradle
+    writeDependencyLocks: true
+    includeInAll: false
     tasks:
       - "clean"
       - ":gemini-api:clean"
